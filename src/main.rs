@@ -20,15 +20,21 @@ const MAP: [u32; HEIGHT as usize] = [
     0b11111111111111111111111111111111
 ];
 
-const GAMESIZE: (u32, u32) = (32, HEIGHT);
-const TILESIZE: f64 = 15.0;
+
+//COLORS
 const SNAKECOLOR: [f32;4] = [0.0, 0.5, 0.0, 0.5];
 const FRUITCOLOR: [f32;4] = [1.0, 0.0, 0.0, 1.0];
 const BG: [f32;4] = [0.0, 0.0, 0.0, 1.0];
 const BLOCKCOLOR: [f32;4] = [0.0, 0.0, 1.0, 1.0];
+//Game tweaking
+//the minimal number of seconds per frame (0.25 spf --> 4fps). beware: max gameframerate is set in Snakegame::start()! 
 const SECONDS_PER_UPDATE: f64 = 0.25;
-
-
+//lenght of invoked pause in seconds.
+const PAUSELEN: f64 = 1000000.0;
+const SPEEDUPFACTOR: f64 = 3.0;
+const GAMESIZE: (u32, u32) = (32, HEIGHT);
+const TILESIZE: f64 = 15.0;
+const TRYS: usize = 3;
 
 //simple demo of the two modules gamewindow and fontrender
 struct Snakegame{
@@ -94,7 +100,7 @@ impl Snakegame{
         self.fruitpos.0 = (random(self.snake.len() as f32+self.fruitpos.1 as f32/3.0)*(GAMESIZE.0-2) as f32) as i32+1;
         self.fruitpos.1 = (random(self.snake.len() as f32+self.fruitpos.0 as f32/3.0)*(GAMESIZE.1-2) as f32) as i32+1;
         //make the game faster everytime the layer picks up a fruit. SECONDS_PER_UODATE seconds per update is minmum (=4 fps)
-        self.seconds_per_update = SECONDS_PER_UPDATE+1.0/self.snake.len() as f64;
+        self.seconds_per_update = SECONDS_PER_UPDATE+1.0/self.snake.len() as f64/SPEEDUPFACTOR;
     }
 
     fn newstandard()->Self{
@@ -102,7 +108,7 @@ impl Snakegame{
         snake: vec![(1,1), (1, 2)],
         currentdirection:(0,1),
         timer:0.0,
-        seconds_per_update: SECONDS_PER_UPDATE+0.5,
+        seconds_per_update: SECONDS_PER_UPDATE+0.5/SPEEDUPFACTOR,
         gameover: false}
     }
 
@@ -119,10 +125,11 @@ impl gamewindow::Gametrait for Snakegame{
     fn update(&mut self, dt: f64){
         //println!("delta time {}", dt)
         self.timer += dt;
-        if self.timer > SECONDS_PER_UPDATE{
+        if self.timer > self.seconds_per_update{
             self.timer = 0.0;
             if self.snakemove(){
                 //println!("GAMEOVER");
+                //could se that directly inside snake move fn.
                 self.gameover = true;
             }
         }
@@ -153,11 +160,16 @@ impl gamewindow::Gametrait for Snakegame{
             else if keychar == 'A'{self.currentdirection = (-1, 0);}
             else if keychar == 'S'{self.currentdirection = (0, 1);}
             else if keychar == 'D'{self.currentdirection = (1, 0);}
+            else if keychar == ' '{self.seconds_per_update = PAUSELEN;}
+            else if keychar == 'U'{self.seconds_per_update = SECONDS_PER_UPDATE+1.0/self.snake.len() as f64/SPEEDUPFACTOR; }
         }
     }    
 }
 
 fn main() {
-    println!("snakegame controls wasd.");
-    Snakegame::start();
+    println!("snakegame controls wasd. pause with space. unpause with u");
+    for i in 0..TRYS{
+        println!("try {}/{}",i+1, TRYS);
+        Snakegame::start();
+    }
 }
