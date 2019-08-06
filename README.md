@@ -1,4 +1,6 @@
 # Piston Snake
+https://github.com/gubbu/PistonSnake/blob/master/Capture.PNG
+![alt text](https://github.com/gubbu/PistonSnake/blob/master/Capture.PNG)
 it is just a simple snake game. Controls are: wasd. No parallel code written by me in there. The player steers the snake over a 32x14 bitmap and has to avoid walls while collecting red blocks("fruits") to make his snake longer and increase his movement speed. If the fruit spawns inside a wall the player is able to pass through it without causing the gameover condition. The Gameover condition is met, when the player
 + collides with a wall
 + collides with himself
